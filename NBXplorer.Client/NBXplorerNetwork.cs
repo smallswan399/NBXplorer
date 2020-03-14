@@ -1,4 +1,5 @@
 ﻿using NBitcoin;
+using NBXplorer.DerivationStrategy;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ namespace NBXplorer
 {
 	public class NBXplorerNetwork
 	{
-		public NBXplorerNetwork(INetworkSet networkSet, NBitcoin.NetworkType networkType)
+		internal NBXplorerNetwork(INetworkSet networkSet, NetworkType networkType)
 		{
 			NBitcoinNetwork = networkSet.GetNetwork(networkType);
 			CryptoCode = networkSet.CryptoCode;
@@ -38,11 +39,22 @@ namespace NBXplorer
 			private set;
 		}
 
+		internal virtual DerivationStrategyFactory CreateStrategyFactory()
+		{
+			return new DerivationStrategy.DerivationStrategyFactory(NBitcoinNetwork);
+		}
+
 		public DerivationStrategy.DerivationStrategyFactory DerivationStrategyFactory
 		{
 			get;
 			internal set;
 		}
+
+		public virtual BitcoinAddress CreateAddress(DerivationStrategyBase derivationStrategy, KeyPath keyPath, Script scriptPubKey)
+		{
+			return scriptPubKey.GetDestinationAddress(NBitcoinNetwork);
+		}
+
 		public bool SupportCookieAuthentication
 		{
 			get;
@@ -55,7 +67,7 @@ namespace NBXplorer
 		{
 			get
 			{
-				_Serializer = _Serializer ?? new Serializer(NBitcoinNetwork);
+				_Serializer = _Serializer ?? new Serializer(this);
 				return _Serializer;
 			}
 		}
@@ -90,10 +102,16 @@ namespace NBXplorer
 		{
 			get; set;
 		} = 288;
+		public KeyPath CoinType { get; internal set; }
 
 		public override string ToString()
 		{
 			return CryptoCode.ToString();
+		}
+		
+		public virtual ExplorerClient CreateExplorerClient(Uri uri)
+		{
+			return new ExplorerClient(this, uri);
 		}
 	}
 }

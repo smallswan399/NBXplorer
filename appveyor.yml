@@ -34,10 +34,16 @@ init:
 #       build configuration       #
 #---------------------------------#
 before_build:
+
+- ps: Write-Host "[$env:configuration] STARTED RabbitMq" -foregroundcolor "magenta"
+- cmd: where docker
+- cmd: docker version && docker-compose version
+- cmd: docker-compose -f docker-compose.regtest.yml up -d rabbitmq
+
 - ps: |
       Write-Host "[$env:configuration] STARTED dotnet restore" -foregroundcolor "magenta"
-      
-      dotnet restore -v m
+      dotnet nuget locals all --clear
+      dotnet restore -v diag -p:DisableImplicitNuGetFallbackFolder=true
       Write-Host "[$env:configuration] FINISHED dotnet restore" -foregroundcolor "magenta"
       if ($LastExitCode -ne 0) { $host.SetShouldExit($LastExitCode) }
     

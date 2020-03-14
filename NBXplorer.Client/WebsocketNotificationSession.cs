@@ -1,4 +1,4 @@
-﻿using NBitcoin;
+using NBitcoin;
 using System.Linq;
 using NBXplorer.DerivationStrategy;
 using NBXplorer.Models;
@@ -41,19 +41,19 @@ namespace NBXplorer
 			}
 			catch(WebSocketException) // For some reason the ErrorCode is not properly set, so we can check for error 401
 			{
-				if(!_Client._Auth.RefreshCache())
+				if(!_Client.Auth.RefreshCache())
 					throw;
 				socket = await ConnectAsyncCore(uri, cancellation);
 			}
 			JsonSerializerSettings settings = new JsonSerializerSettings();
-			new Serializer(_Client.Network.NBitcoinNetwork).ConfigureSerializer(settings);
+			new Serializer(_Client.Network).ConfigureSerializer(settings);
 			_MessageListener = new WebsocketMessageListener(socket, settings);
 		}
 
 		private async Task<ClientWebSocket> ConnectAsyncCore(string uri, CancellationToken cancellation)
 		{
 			var socket = new ClientWebSocket();
-			_Client._Auth.SetWebSocketAuth(socket);
+			_Client.Auth.SetWebSocketAuth(socket);
 			try
 			{
 				await socket.ConnectAsync(new Uri(uri, UriKind.Absolute), cancellation).ConfigureAwait(false);
@@ -80,7 +80,7 @@ namespace NBXplorer
 		}
 		public Task ListenNewBlockAsync(CancellationToken cancellation = default)
 		{
-			return _MessageListener.Send(new Models.NewBlockEventRequest() { CryptoCode = _Client.CryptoCode }, cancellation);
+			return _MessageListener.Send(new Models.NewBlockEventRequest() { CryptoCode = _Client.CryptoCode }, null, cancellation);
 		}
 
 		/// <summary>
@@ -100,7 +100,7 @@ namespace NBXplorer
 		/// <param name="cancellation">Cancellation token</param>
 		public Task ListenAllDerivationSchemesAsync(bool allCryptoCodes = false, CancellationToken cancellation = default)
 		{
-			return _MessageListener.Send(new Models.NewTransactionEventRequest() { CryptoCode = allCryptoCodes ? "*" : _Client.CryptoCode }, cancellation);
+			return _MessageListener.Send(new Models.NewTransactionEventRequest() { CryptoCode = allCryptoCodes ? "*" : _Client.CryptoCode }, null, cancellation);
 		}
 
 		/// <summary>
@@ -120,7 +120,7 @@ namespace NBXplorer
 		/// <param name="cancellation">Cancellation token</param>
 		public Task ListenAllTrackedSourceAsync(bool allCryptoCodes = false, CancellationToken cancellation = default)
 		{
-			return _MessageListener.Send(new Models.NewTransactionEventRequest() { CryptoCode = allCryptoCodes ? "*" : _Client.CryptoCode, ListenAllTrackedSource = true }, cancellation);
+			return _MessageListener.Send(new Models.NewTransactionEventRequest() { CryptoCode = allCryptoCodes ? "*" : _Client.CryptoCode, ListenAllTrackedSource = true }, null, cancellation);
 		}
 
 		public void ListenDerivationSchemes(DerivationStrategyBase[] derivationSchemes, CancellationToken cancellation = default)
@@ -130,7 +130,7 @@ namespace NBXplorer
 
 		public Task ListenDerivationSchemesAsync(DerivationStrategyBase[] derivationSchemes, CancellationToken cancellation = default)
 		{
-			return _MessageListener.Send(new Models.NewTransactionEventRequest() { DerivationSchemes = derivationSchemes.Select(d=>d.ToString()).ToArray(), CryptoCode = _Client.CryptoCode }, cancellation);
+			return _MessageListener.Send(new Models.NewTransactionEventRequest() { DerivationSchemes = derivationSchemes.Select(d=>d.ToString()).ToArray(), CryptoCode = _Client.CryptoCode }, null, cancellation);
 		}
 
 		public void ListenTrackedSources(TrackedSource[] trackedSources, CancellationToken cancellation = default)
@@ -140,7 +140,7 @@ namespace NBXplorer
 
 		public Task ListenTrackedSourcesAsync(TrackedSource[] trackedSources, CancellationToken cancellation = default)
 		{
-			return _MessageListener.Send(new Models.NewTransactionEventRequest() { TrackedSources = trackedSources.Select(d => d.ToString()).ToArray(), CryptoCode = _Client.CryptoCode }, cancellation);
+			return _MessageListener.Send(new Models.NewTransactionEventRequest() { TrackedSources = trackedSources.Select(d => d.ToString()).ToArray(), CryptoCode = _Client.CryptoCode }, null, cancellation);
 		}
 
 		public override Task<NewEventBase> NextEventAsync(CancellationToken cancellation = default)

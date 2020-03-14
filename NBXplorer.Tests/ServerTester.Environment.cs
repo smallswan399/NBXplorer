@@ -1,12 +1,14 @@
-﻿using NBitcoin.Tests;
+using NBitcoin.Tests;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using NBitcoin;
 
 namespace NBXplorer.Tests
 {
     public partial class ServerTester
     {
+		NBXplorerNetworkProvider _Provider = new NBXplorerNetworkProvider(NetworkType.Regtest);
 		private void SetEnvironment()
 		{
 			//CryptoCode = "LTC";
@@ -26,6 +28,10 @@ namespace NBXplorer.Tests
 			//CryptoCode = "DASH";
 			//nodeDownloadData = NodeDownloadData.Dash.v0_12_2;
 			//Network = NBitcoin.Altcoins.Dash.Instance.Regtest;
+
+			//CryptoCode = "TRC";
+			//nodeDownloadData = NodeDownloadData.Terracoin.v0_12_2;
+			//Network = NBitcoin.Altcoins.Terracoin.Instance.Regtest;
 
 			//CryptoCode = "POLIS";
 			//nodeDownloadData = NodeDownloadData.Polis.v1_3_1;
@@ -74,9 +80,13 @@ namespace NBXplorer.Tests
 			//Network = NBitcoin.Altcoins.Colossus.Instance.Regtest;
 			//RPCSupportSegwit = false;
 
+			//CryptoCode = "LBTC";
+			//nodeDownloadData = NodeDownloadData.Elements.v0_18_1_1;
+			//NBXplorerNetwork = _Provider.GetLBTC();
+			//
 			CryptoCode = "BTC";
-			nodeDownloadData = NodeDownloadData.Bitcoin.v0_18_0;
-			Network = NBitcoin.Network.RegTest;
+			nodeDownloadData = NodeDownloadData.Bitcoin.v0_19_0_1;
+			NBXplorerNetwork = _Provider.GetBTC();
 		}
 	}
 }

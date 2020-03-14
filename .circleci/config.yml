@@ -2,19 +2,19 @@ version: 2
 jobs:
   test:
     docker:
-      - image: mcr.microsoft.com/dotnet/core/sdk:3.0.100
+      - image: mcr.microsoft.com/dotnet/core/sdk:3.1.100
     steps:
       - checkout
       - run:
           command: |
             dotnet --info
             dotnet build -c Release /p:TreatWarningsAsErrors=true
-            dotnet test -c Release --no-build ./NBXplorer.Tests/NBXplorer.Tests.csproj --filter "Azure!=Azure" -v n < /dev/null
+            dotnet test -c Release --no-build ./NBXplorer.Tests/NBXplorer.Tests.csproj --filter "Azure!=Azure&Broker!=RabbitMq" -v n < /dev/null
 
   # publish jobs require $DOCKERHUB_REPO, $DOCKERHUB_USER, $DOCKERHUB_PASS defined
   amd64:
     machine:
-      docker_layer_caching: true
+      enabled: true
     steps:
       - checkout  
       - run:
@@ -27,7 +27,7 @@ jobs:
 
   arm32v7:
     machine:
-      docker_layer_caching: true
+      enabled: true
     steps:
       - checkout  
       - run:
@@ -41,7 +41,7 @@ jobs:
 
   arm64v8:
     machine:
-      docker_layer_caching: true
+      enabled: true
     steps:
       - checkout  
       - run:
