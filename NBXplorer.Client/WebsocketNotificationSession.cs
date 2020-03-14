@@ -54,6 +54,10 @@ namespace NBXplorer
 		{
 			var socket = new ClientWebSocket();
 			_Client.Auth.SetWebSocketAuth(socket);
+			if (Client.WebProxy != null)
+			{
+				socket.Options.Proxy = Client.WebProxy;
+			}
 			try
 			{
 				await socket.ConnectAsync(new Uri(uri, UriKind.Absolute), cancellation).ConfigureAwait(false);

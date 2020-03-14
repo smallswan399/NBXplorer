@@ -78,17 +78,18 @@ namespace NBXplorer
 			}
 		}
 
-		public ExplorerClient(NBXplorerNetwork network, Uri serverAddress = null): this(network, serverAddress, null)
+		public ExplorerClient(NBXplorerNetwork network, Uri serverAddress = null, IWebProxy proxy = null): this(network, serverAddress, null, proxy)
 		{
 
 		}
-		public ExplorerClient(NBXplorerNetwork network, Uri serverAddress, IAuth customAuth)
+		public ExplorerClient(NBXplorerNetwork network, Uri serverAddress, IAuth customAuth, IWebProxy proxy = null)
 		{
 			serverAddress = serverAddress ?? network.DefaultSettings.DefaultUrl;
 			if (network == null)
 				throw new ArgumentNullException(nameof(network));
 			_Address = serverAddress;
 			_Network = network;
+			_WebProxy = proxy;
 			Serializer = new Serializer(network);
 			_CryptoCode = _Network.CryptoCode;
 			_Factory = Network.DerivationStrategyFactory;
@@ -101,6 +102,10 @@ namespace NBXplorer
 				_Auth = customAuth;
 				customAuth.RefreshCache();
 			}
+
+			Client = _WebProxy == null
+				? SharedClient
+				: new HttpClient(new HttpClientHandler() {Proxy = _WebProxy}, true);
 		}
 
 		public RPCClient RPCClient { get; private set; }
@@ -575,6 +580,15 @@ namespace NBXplorer
 			get
 			{
 				return _Address;
+			}
+		}
+
+		private readonly IWebProxy _WebProxy;
+		public IWebProxy WebProxy
+		{
+			get
+			{
+				return _WebProxy;
 			}
 		}
 
